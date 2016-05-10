@@ -6,7 +6,7 @@ defmodule Pagexduty do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    service_key = Application.get_env(:pagerduty, :service_key) || System.get_env("PAGERDUTY_SERVICE_KEY")
+    service_key = Application.get_env(:pagexduty, :service_key) || System.get_env("PAGERDUTY_SERVICE_KEY")
 
     children = [
       # Define workers and child supervisors to be supervised

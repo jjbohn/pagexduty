@@ -25,13 +25,33 @@ defmodule Pagexduty.Server do
     GenServer.call __MODULE__, {:trigger, incident}
   end
 
-  def handle_call({:trigger, incident}, _from, service_key) do
-    response = create_event(incident, service_key)
+  def resolve(description) do
+    incident = %{description: description}
+    GenServer.call __MODULE__, {:resolve, incident}
+  end
+
+  def resolve(description, details) when is_map(details) do
+    incident = %{description: description, details: details}
+    GenServer.call __MODULE__, {:resolve, incident}
+  end
+
+  def resolve(description, incident_key) when is_binary(incident_key) do
+    incident = %{description: description, incident_key: incident_key}
+    GenServer.call __MODULE__, {:resolve, incident}
+  end
+
+  def resolve(description, incident_key, details) do
+    incident = %{description: description, incident_key: incident_key, details: details}
+    GenServer.call __MODULE__, {:resolve, incident}
+  end
+
+  def handle_call({event_type, incident}, _from, service_key) do
+    response = create_event(incident, service_key, event_type)
     {:reply, response, service_key}
   end
 
-  def create_event(event_params, service_key) do
-    params = Map.merge(event_params, %{"service_key" => service_key, "event_type" => "trigger"})
+  def create_event(event_params, service_key, event_type) do
+    params = Map.merge(event_params, %{"service_key" => service_key, "event_type" => event_type})
     json = json_encode(params)
     response = post(create_event_url, json, default_headers)
     json_decode(response.body)
